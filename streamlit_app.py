@@ -1,40 +1,41 @@
-import altair as alt
-import numpy as np
-import pandas as pd
 import streamlit as st
+import cv2
+import numpy as np
+from PIL import Image
+from io import BytesIO
+import torch
+from your_generative_model_module import generate_correct_order  # Replace with your generative model function
 
-"""
-# Welcome to Streamlit!
+st.title("Image Arrangement Solver")
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+# Function to generate correct image arrangement
+def generate_solution(arranged_images):
+    # Call your generative model function here
+    solution = generate_correct_order(arranged_images)
+    return solution
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+# Upload multiple image files through Streamlit
+uploaded_files = st.file_uploader("Choose multiple images...", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+if uploaded_files:
+    # Display the uploaded images
+    uploaded_images = [Image.open(file) for file in uploaded_files]
+    st.image(uploaded_images, caption="Uploaded Images", use_column_width=True)
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
+    # Arrange the images randomly for initial display
+    np.random.shuffle(uploaded_images)
 
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
+    # Display the randomly arranged images
+    st.image(uploaded_images, caption="Randomly Arranged Images", use_column_width=True)
 
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
+    # Button to generate the correct arrangement
+    if st.button("Generate Correct Arrangement"):
+        # Convert images to NumPy arrays
+        arranged_images_array = [np.array(image) for image in uploaded_images]
 
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
+        # Generate the correct image arrangement
+        solution = generate_solution(arranged_images_array)
+
+        # Display the correct arrangement
+        st.image(solution, caption="Correct Image Arrangement", use_column_width=True)
+
