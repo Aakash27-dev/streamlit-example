@@ -1,5 +1,6 @@
 import streamlit as st
 from PIL import Image
+import os
 
 # Function to process the image (example: convert to grayscale)
 def process_image(input_image):
@@ -71,30 +72,24 @@ def main():
     st.markdown('<div class="upload-section">', unsafe_allow_html=True)
 
     if uploaded_file is not None:
-        # Display original and processed images side by side with spacing
-        col1, col2 = st.columns(2)
-
         # Display original image
-        with col1:
-            st.text("Original Image")
-            original_image = Image.open(uploaded_file)
-            st.image(original_image, caption='Original Image', use_column_width=True, output_format="JPEG")
+        st.text("Original Image")
+        original_image = Image.open(uploaded_file)
+        st.image(original_image, caption='Original Image', use_column_width=True, output_format="JPEG")
 
-        # Add some spacing
-        st.write("")
+        # Process the image when the "Process" button is clicked
+        if st.button("Process Image", key="process_button"):
+            # Process the image
+            processed_image = process_image(original_image)
 
-        # Process the image
-        processed_image = process_image(original_image)
-
-        # Display processed image
-        with col2:
+            # Display processed image
             st.text("Processed Image")
             st.image(processed_image, caption='Processed Image', use_column_width=True, output_format="JPEG")
 
-        # Save the processed image (optional)
-        if st.button("Save Processed Image", key="save_button"):
-            processed_image.save("processed_image.jpg")
-            st.success("Processed image saved successfully!")
+            # Save the processed image (optional)
+            if st.button("Save Processed Image", key="save_button"):
+                processed_image.save("processed_image.jpg")
+                st.success("Processed image saved successfully!")
 
     st.markdown('</div>', unsafe_allow_html=True)  # Close upload-section
 
