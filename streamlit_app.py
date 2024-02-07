@@ -1,41 +1,106 @@
 import streamlit as st
-import cv2
-import numpy as np
 from PIL import Image
-from io import BytesIO
-import torch
-from your_generative_model_module import generate_correct_order  # Replace with your generative model function
 
-st.title("Image Arrangement Solver")
+# Function to process the image (example: convert to grayscale)
+def process_image(input_image):
+    processed_image = input_image.convert('L')
+    return processed_image
 
-# Function to generate correct image arrangement
-def generate_solution(arranged_images):
-    # Call your generative model function here
-    solution = generate_correct_order(arranged_images)
-    return solution
+def main():
+    st.set_page_config(
+        page_title="Jigsaw Puzzle App",
+        page_icon="🧩",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
 
-# Upload multiple image files through Streamlit
-uploaded_files = st.file_uploader("Choose multiple images...", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+    st.title('JIGSAW PUZZLE')
 
-if uploaded_files:
-    # Display the uploaded images
-    uploaded_images = [Image.open(file) for file in uploaded_files]
-    st.image(uploaded_images, caption="Uploaded Images", use_column_width=True)
+    # Set overall page style with background image
+    st.markdown(
+        """
+        <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            color: #333333;
+            background-image: url('your_background_image_url_here');  /* Add your image URL */
+            background-size: cover;
+        }
+        .main-container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .title {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            font-size: 32px;
+            text-align: center;
+        }
+        .upload-section {
+            padding: 20px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        .uploaded-image, .processed-image {
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # Arrange the images randomly for initial display
-    np.random.shuffle(uploaded_images)
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
-    # Display the randomly arranged images
-    st.image(uploaded_images, caption="Randomly Arranged Images", use_column_width=True)
+    st.markdown('<div class="title">Jigsaw Puzzle App</div>', unsafe_allow_html=True)
 
-    # Button to generate the correct arrangement
-    if st.button("Generate Correct Arrangement"):
-        # Convert images to NumPy arrays
-        arranged_images_array = [np.array(image) for image in uploaded_images]
+    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-        # Generate the correct image arrangement
-        solution = generate_solution(arranged_images_array)
+    st.markdown('<div class="upload-section">', unsafe_allow_html=True)
 
-        # Display the correct arrangement
-        st.image(solution, caption="Correct Image Arrangement", use_column_width=True)
+    if uploaded_file is not None:
+        # Display original and processed images side by side with spacing
+        col1, col2 = st.columns(2)
+
+        # Display original image
+        with col1:
+            st.text("Original Image")
+            original_image = Image.open(uploaded_file)
+            st.image(original_image, caption='Original Image', use_column_width=True, output_format="JPEG")
+
+        # Add some spacing
+        st.write("")
+
+        # Process the image
+        processed_image = process_image(original_image)
+
+        # Display processed image
+        with col2:
+            st.text("Processed Image")
+            st.image(processed_image, caption='Processed Image', use_column_width=True, output_format="JPEG")
+
+        # Save the processed image (optional)
+        if st.button("Save Processed Image", key="save_button"):
+            processed_image.save("processed_image.jpg")
+            st.success("Processed image saved successfully!")
+
+    st.markdown('</div>', unsafe_allow_html=True)  # Close upload-section
+
+    st.markdown('</div>', unsafe_allow_html=True)  # Close main-container
+
+if __name__ == "__main__":
+    main()
+
 
